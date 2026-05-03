@@ -33,7 +33,6 @@
             <span>🔒 תשלום מאובטח</span>
         </div>
     </div>
-
     <div class="checkout-container">
         <div>
             <h1 style="margin-bottom: 30px;">פרטי התשלום</h1>
@@ -52,21 +51,20 @@
             <div id="paypal-button-container"></div>
             <a href="/" class="back-link">← חזרה לחנות</a>
         </div>
-
         <div class="order-summary">
             <h2>סיכום הזמנה</h2>
             <div class="order-item">
                 <span>מוצר</span>
-                <span>₪199</span>
+                <span id="product-name-display">טוען...</span>
             </div>
             <div class="order-item">
-                <span>מס</span>
-                <span>₪0</span>
+                <span>מחיר</span>
+                <span id="product-price-display">₪0</span>
             </div>
             <div class="order-total">
                 <div style="display: flex; justify-content: space-between;">
                     <span>סה"כ:</span>
-                    <span>₪199</span>
+                    <span id="total-price-display">₪0</span>
                 </div>
             </div>
             <div style="margin-top: 20px; padding: 16px; background: rgba(76,175,80,0.1); border-radius: 8px; color: #4caf50; font-size: 0.9rem;">
@@ -74,14 +72,27 @@
             </div>
         </div>
     </div>
-
     <script src="https://www.paypal.com/sdk/js?client-id=AZr8MsWIYQdVV3k24fRoQ2f1hS1vEGJky8EUhl_XVPpTRCKLdiaaTqKLkzIfGT6aICaRau9bH-FjFzyL&currency=ILS"></script>
     <script>
+        const products = {
+            'prompt-bible': { name: 'Prompt Bible', price: 199 },
+            'vip': { name: 'VIP Membership', price: 499 },
+            'dropshipping': { name: 'Dropshipping Course', price: 299 }
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product') || 'prompt-bible';
+        const product = products[productId] || products['prompt-bible'];
+
+        document.getElementById('product-name-display').innerText = product.name;
+        document.getElementById('product-price-display').innerText = '₪' + product.price;
+        document.getElementById('total-price-display').innerText = '₪' + product.price;
+
         paypal.Buttons({
             createOrder: function(data, actions) {
                 return actions.order.create({
                     purchase_units: [{
-                        amount: { value: '199.00', currency_code: 'ILS' }
+                        amount: { value: product.price.toString() + '.00', currency_code: 'ILS' }
                     }]
                 });
             },
