@@ -1,0 +1,54 @@
+name: CI - Site Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check HTML files exist
+        run: |
+          echo "Checking essential HTML files..."
+          for file in index.html checkout.html contact.html; do
+            if [ -f "$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file missing"
+              exit 1
+            fi
+          done
+          
+      - name: Validate HTML structure
+        run: |
+          for file in *.html; do
+            if grep -q '<!DOCTYPE html>' "$file" && grep -q '</html>' "$file"; then
+              echo "✅ $file - valid structure"
+            else
+              echo "❌ $file - invalid structure"
+              exit 1
+            fi
+          done
+          
+      - name: Verify checkout.html has PayPal integration
+        run: |
+          if grep -q 'paypal.com/sdk/js' checkout.html; then
+            echo "✅ checkout.html - PayPal SDK present"
+          else
+            echo "❌ checkout.html - PayPal SDK missing"
+            exit 1
+          fi
+          
+      - name: Check sitemap.xml
+        run: |
+          if [ -f sitemap.xml ]; then
+            echo "✅ sitemap.xml exists"
+            if grep -q '<urlset' sitemap.xml; then
+              echo "✅ sitemap.xml - valid format"
+            fi
+          fi
